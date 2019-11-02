@@ -11,7 +11,7 @@ namespace AI____Robot_Localization
         private const double ObstacleDetectRate = 0.9;
         private const double ObstacleFalsePositiveRate = 0.05;
         private const double DriftChance = 0.1;
-        private string[] sensorReadings = { "----", "o---", "oo--", "-oo-" };
+        private string[] sensorReadings = { "---o", "o---", "oo--", "-oo-" };
         private enum Heading { North, East };
         private Heading[] headingOrder = { Heading.North, Heading.North, Heading.East };
 
