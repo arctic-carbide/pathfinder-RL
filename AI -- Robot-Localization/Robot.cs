@@ -12,39 +12,83 @@ namespace AI____Robot_Localization
         private const double ObstacleFalsePositiveRate = 0.05;
         private const double DriftChance = 0.1;
         private string[] sensorReadings = { "---o", "o---", "oo--", "-oo-" };
-        private enum Heading { North, East };
-        private Heading[] headingOrder = { Heading.North, Heading.North, Heading.East };
 
-        private Queue<Heading> direction;
-        private Queue<string> sensorSequence;
-        
+        private RegionMap _maze = new RegionMap();
 
         public Robot()
         {
-            sensorSequence = new Queue<string>(sensorReadings);
-            direction = new Queue<Heading>(headingOrder);
+            _maze.Print();
         }
 
         public void MoveNorth() { }
         public void MoveEast() { }
 
-        public void UpdateMotion(RegionMap rm)
+        public void MotionUpdate(string direction)
         {
-            Heading h = direction.Dequeue();
-            switch (h)
+            switch (direction)
             {
-                case Heading.North:
+                case "north":
                     MoveNorth();
                     break;
-                case Heading.East:
+                case "east":
                     MoveEast();
                     break;
             }
+
+            _maze.Print();
         }
 
-        public void UpdateSensor(RegionMap rm)
+        public void SensorUpdate(string reading)
         {
-            string reading = sensorSequence.Dequeue();
+            // update all maps values by matching sensor reading to location
+            // if the location does not match, use false positive value
+            // if the location matches, use
+            double targetValue;
+            double matchValue;
+            double mismatchValue;
+            bool match;
+
+            List<double> allMatches = new List<double>();
+            List<double> matches = new List<double>();
+            List<double> mismatches = new List<double>();
+
+            // figure how many matches there are
+            for (int row = 0; row < _maze.Rows; row++)
+            {
+                for (int col = 0; col < _maze.Columns; col++)
+                {
+                    targetValue = _maze[row, col];
+                    match = _maze.IsMatch(reading, row, col);
+
+
+                    allMatches.Add(_maze[row, col]);
+                    if (match)
+                    {
+                        matches.Add(ObstacleDetectRate * _maze[row, col]);
+                    }
+                    else
+                    {
+                        mismatches.Add(ObstacleFalsePositiveRate * _maze[row, col]);
+                    }
+
+                }
+
+            }
+
+            double matchSum = matches.Sum();
+            double mismatchSum = mismatches.Sum();
+            double divisor = matchSum + mismatchSum;
+
+            for (int row = 0; row < _maze.Rows; row++)
+            {
+                for (int col = 0; col < _maze.Columns; col++)
+                {
+                    var index = row * col;
+                    _maze[row, col] = _maze[row, col] / divisor;
+                }
+            }
+
+            _maze.Print();
         }
 
     }
