@@ -10,6 +10,7 @@ namespace AI____Robot_Localization
     {
         private const double ObstacleDetectRate = 0.9;
         private const double ObstacleFalsePositiveRate = 0.05;
+        private const double ForwardChance = 0.8;
         private const double DriftChance = 0.1;
         private string[] sensorReadings = { "---o", "o---", "oo--", "-oo-" };
 
@@ -20,20 +21,10 @@ namespace AI____Robot_Localization
             _maze.Print();
         }
 
-        public void MoveNorth() { }
-        public void MoveEast() { }
-
         public void MotionUpdate(string direction)
         {
-            switch (direction)
-            {
-                case "north":
-                    MoveNorth();
-                    break;
-                case "east":
-                    MoveEast();
-                    break;
-            }
+            // total summation
+
 
             _maze.Print();
         }
@@ -59,7 +50,8 @@ namespace AI____Robot_Localization
                 {
                     targetValue = _maze[row, col];
                     match = _maze.IsMatch(reading, row, col);
-
+                    
+                    
 
                     allMatches.Add(_maze[row, col]);
                     if (match)
@@ -83,7 +75,6 @@ namespace AI____Robot_Localization
             {
                 for (int col = 0; col < _maze.Columns; col++)
                 {
-                    var index = row * col;
                     _maze[row, col] = _maze[row, col] / divisor;
                 }
             }

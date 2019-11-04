@@ -35,7 +35,7 @@ namespace AI____Robot_Localization
         public bool IsMatch(string reading, int row, int col)
         {
             System.Diagnostics.Debug.Assert(reading.Length == 4);
-
+            List<double> values = getSurroundingValues(row, col);
             List<bool> matches = new List<bool>();
             matches.Add(IsMatch(reading[0], row, col - 1)); // west
             matches.Add(IsMatch(reading[1], row - 1, col)); // north
@@ -43,6 +43,18 @@ namespace AI____Robot_Localization
             matches.Add(IsMatch(reading[3], row + 1, col)); // south
 
             return matches.All(b => b == true);
+        }
+
+        public List<double> getSurroundingValues (int row, int col) {
+            List<double> values = new List<double>();
+
+            values.Add(this[row, col - 1]);
+            values.Add(this[row - 1, col]);
+            values.Add(this[row, col + 1]);
+            values.Add(this[row + 1, col]);
+            
+
+            return values;
         }
 
         public bool IsMatch(char sense, int row, int col)
@@ -57,6 +69,7 @@ namespace AI____Robot_Localization
                     return false;
             }
         }
+
         public void Print()
         {
             _printCalls++;
