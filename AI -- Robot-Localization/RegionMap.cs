@@ -12,13 +12,43 @@ namespace AI____Robot_Localization
         private const int HangTime_ms = 1000;
         private const double O = 0.00;
         private const double F = 4.35;
+        private const int DefaultRows = 5;
+        private const int DefaultColumns = 6;
         public readonly int Rows;
         public readonly int Columns;
-
-        public RegionMap()
+        private Tile[,] maze;
+        private string[] plan =
         {
-            Rows = floorPlan.GetLength(0);
-            Columns = floorPlan.GetLength(1);
+            "FFFFFF",
+            "FOOOOF",
+            "FOFFOF",
+            "FOFFFF",
+            "FOFFFF",
+        };
+
+        public RegionMap(int rows = DefaultRows, int columns = DefaultColumns)
+        {
+            Rows = rows;
+            Columns = columns;
+
+            maze = new Tile[Rows, Columns];
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Columns; j++)
+                {
+                    if (plan[i][j] == 'O')
+                    {
+                        maze[i, j] = new Obstacle();
+                    }
+                    else
+                    {
+                        maze[i, j] = new Floor();
+                    }
+                }
+            }
+
+            
+
         }
 
         private double[,] floorPlan =
@@ -30,6 +60,46 @@ namespace AI____Robot_Localization
             { F, F, F, F, F, F }
         };
 
+        public List<Tile> GetAdjacentTiles(Tile t)
+        {
+            List<Tile> adjacent = new List<Tile>();
+            int row = 0;
+            int column = 0;
+
+            foreach (var a in maze)
+            {
+                if (t == a) break;
+
+                if (row % Columns == 0)
+                {
+                    row = 0;
+                    column++;
+                }
+                else
+                {
+                    row++;
+                }
+            }
+
+            adjacent.Add(GetTile(row, column - 1));
+            adjacent.Add(GetTile(row - 1, column));
+            adjacent.Add(GetTile(row, column + 1));
+            adjacent.Add(GetTile(row + 1, column));
+
+            return adjacent;
+        }
+
+        public Tile GetTile(int row, int column)
+        {
+            if (row >= 0 && row < Rows && column >= 0 && column < Columns)
+            {
+                return maze[row, column];
+            }
+            else
+            {
+                return new Obstacle();
+            }
+        }
         public bool IsObstacle(int row, int col) { return !IsFloor(row, col); }
         public bool IsFloor(int row, int col) { return this[row, col] > O; }
         public bool IsMatch(string reading, int row, int col)
@@ -45,6 +115,7 @@ namespace AI____Robot_Localization
             return matches.All(b => b == true);
         }
 
+        
         public List<double> getSurroundingValues (int row, int col) {
             List<double> values = new List<double>();
 
@@ -90,6 +161,26 @@ namespace AI____Robot_Localization
             }
             
             System.Threading.Thread.Sleep(HangTime_ms);
+        }
+
+        private double Find(object x)
+        {
+            foreach (var d in floorPlan)
+            {
+                if (x.Equals(d))
+                {
+                    return d;
+                }
+            }
+
+            return O;
+        }
+        public double this[object x]
+        {
+            get
+            {
+                return Find(x);
+            }
         }
 
         public double this[int row, int col]

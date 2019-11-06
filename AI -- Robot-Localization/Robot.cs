@@ -12,7 +12,8 @@ namespace AI____Robot_Localization
         private const double ObstacleFalsePositiveRate = 0.05;
         private const double ForwardChance = 0.8;
         private const double DriftChance = 0.1;
-        private string[] sensorReadings = { "---o", "o---", "oo--", "-oo-" };
+        private double previous = 0.0;
+        // private string[] sensorReadings = { "---o", "o---", "oo--", "-oo-" };
 
         private RegionMap _maze = new RegionMap();
 
@@ -27,6 +28,65 @@ namespace AI____Robot_Localization
 
 
             _maze.Print();
+        }
+
+        private double CalculateTotalProbabilityOf(Tile targetState, Tile currentState)
+        {
+             
+        }
+
+        private double CalculateProbabilityOf(Tile targetState, Evidence evidence) // P(S|Z)
+        {
+            double prior = CalculateProbabilityOf(targetState); // P(S)
+            double normalizer = CalculateNormalizer(targetState, evidence);
+
+            return prior / normalizer; 
+        }
+
+        private double CalculateProbabilityOf(Evidence evidence, Tile state) // P(Z|S)
+        {
+            // based on the evidence
+            // check surrounding tiles
+            double probability = 1.0;
+            List<Tile> adjacent = 
+            
+
+            foreach (var r in evidence.Value)
+            {
+                bool match = 
+                if (r is Obstacle)
+                {
+
+                }
+                else
+                {
+
+                }
+            }
+
+
+            return probability;
+            
+        }
+
+        
+
+        private double CalculateProbabilityOf(Tile state) // P(S)
+        {
+            return _maze[state];
+        }
+        private double CalculateNormalizer(Evidence e) // P(S|Z) -> P(Z|S)*P(S)
+        {
+            List<double> values = new List<double>();
+            double normalizer = 0.0;
+
+            foreach (Tile t in _maze)
+            {
+                values.Add(CalculateProbabilityOf(e, t) * CalculateProbabilityOf(t));
+            }
+
+            normalizer = values.Sum();
+            return normalizer;
         }
 
         public void SensorUpdate(string reading)
@@ -51,8 +111,6 @@ namespace AI____Robot_Localization
                     targetValue = _maze[row, col];
                     match = _maze.IsMatch(reading, row, col);
                     
-                    
-
                     allMatches.Add(_maze[row, col]);
                     if (match)
                     {
